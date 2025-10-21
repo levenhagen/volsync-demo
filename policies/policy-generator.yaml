@@ -1,0 +1,36 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: volsync-policy-generator
+policyDefaults:
+  namespace: policies
+  remediationAction: enforce
+policies:
+  - name: install-volsync-operator
+    description: "Installs VolSync Operator in all clusters"
+    manifests:
+      - path: manifests/volsync-operator.yaml
+    policySets:
+      - volsync-hub
+  - name: volsync-replication-source
+    description: "Deploys VolSync Replication Source in site A(hub)"
+    manifests:
+      - path: manifests/volsync-replication-source.yaml
+    policySets:
+      - volsync-hub
+  - name: volsync-replication-source
+    description: "Deploys VolSync Destination Source in all sites"
+    manifests:
+      - path: manifests/volsync-destination-source.yaml
+    policySets:
+      - volsync-all-managed-clusters
+
+policySets:
+  - description: The hub policySet will contain VolSync policies that are applied to the Hub only.
+    name: volsync-hub
+    placement:
+      placementPath: hub-placement.yaml
+  - description: The volsync-all-managed-clusters policySet contain VolSync policies that are applied to all managed clusters.
+    name: volsync-all-managed-clusters
+    placement:
+      placementPath: all-managed-clusters-placement.yaml
